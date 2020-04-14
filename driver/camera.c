@@ -185,17 +185,17 @@ static int skip_frame()
     }
     int64_t st_t = esp_timer_get_time();
     while (_gpio_get_level(s_state->config.pin_vsync) == 0) {
-        if((esp_timer_get_time() - st_t) > 1000000LL){
+        if((esp_timer_get_time() - st_t) > 10000000LL){
             goto timeout;
         }
     }
     while (_gpio_get_level(s_state->config.pin_vsync) != 0) {
-        if((esp_timer_get_time() - st_t) > 1000000LL){
+        if((esp_timer_get_time() - st_t) > 10000000LL){
             goto timeout;
         }
     }
     while (_gpio_get_level(s_state->config.pin_vsync) == 0) {
-        if((esp_timer_get_time() - st_t) > 1000000LL){
+        if((esp_timer_get_time() - st_t) > 10000000LL){
             goto timeout;
         }
     }
@@ -491,7 +491,7 @@ static int i2s_run()
 
     int64_t st_t = esp_timer_get_time();
     while (_gpio_get_level(s_state->config.pin_vsync) != 0) {
-        if((esp_timer_get_time() - st_t) > 1000000LL){
+        if((esp_timer_get_time() - st_t) > 10000000LL){
             ESP_LOGE(TAG, "Timeout waiting for VSYNC");
             return -1;
         }

@@ -250,6 +250,8 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
             WRITE_REG_OR_RETURN(BANK_SENSOR, CLKRC, CLKRC_2X_UXGA);
         }
     }
+	
+	
     WRITE_REG_OR_RETURN(BANK_DSP, ZMOW, (w>>2)&0xFF); // OUTW[7:0] (real/4)
     WRITE_REG_OR_RETURN(BANK_DSP, ZMOH, (h>>2)&0xFF); // OUTH[7:0] (real/4)
     WRITE_REG_OR_RETURN(BANK_DSP, ZMHH, ((h>>8)&0x04)|((w>>10)&0x03)); // OUTH[8]/OUTW[9:8]
@@ -261,6 +263,51 @@ static int set_framesize(sensor_t *sensor, framesize_t framesize)
     set_pixformat(sensor, sensor->pixformat);
 
     return ret;
+}
+
+static int set_nightmode(sensor_t *sensor, int enable)
+{
+	int ret=0;
+	
+	if (enable) {
+		//WRITE_REG_OR_RETURN(BANK_SENSOR, CLKRC, CLKRC_2X); // | 0x07);
+		//SET_REG_BITS_OR_RETURN(BANK_SENSOR, CLKRC, 0, 0x3F, 0x0F);
+		WRITE_REG_OR_RETURN(BANK_SENSOR, CLKRC, 0x07);
+		
+		WRITE_REG_OR_RETURN(BANK_SENSOR, 0x0F, 0x4B);
+		
+		WRITE_REG_OR_RETURN(BANK_SENSOR, COM1, 0xCF);	
+		//SET_REG_BITS_OR_RETURN(BANK_SENSOR, COM1, 0, 0xC0, 0xC0);
+	}
+	else {
+		//SET_REG_BITS_OR_RETURN(BANK_SENSOR, CLKRC, 0, 0x3F, 0x01);
+		WRITE_REG_OR_RETURN(BANK_SENSOR, CLKRC, 0x01);
+		/*
+		if (sensor->pixformat == PIXFORMAT_JPEG && sensor->xclk_freq_hz == 10000000) {
+			if (sensor->status.framesize <= FRAMESIZE_CIF) {
+				WRITE_REG_OR_RETURN(BANK_SENSOR, CLKRC, CLKRC_2X_CIF);
+			} else if (sensor->status.framesize <= FRAMESIZE_SVGA) {
+				WRITE_REG_OR_RETURN(BANK_SENSOR, CLKRC, CLKRC_2X_SVGA);
+			} else {
+				WRITE_REG_OR_RETURN(BANK_SENSOR, CLKRC, CLKRC_2X_UXGA);
+			}
+		}
+		*/
+		//WRITE_REG_OR_RETURN(BANK_SENSOR, 0x0F, 0x00);
+		
+		if (sensor->status.framesize <= FRAMESIZE_CIF) {
+				WRITE_REG_OR_RETURN(BANK_SENSOR, COM1, 0x0A);
+			} else if (sensor->status.framesize <= FRAMESIZE_SVGA) {
+				WRITE_REG_OR_RETURN(BANK_SENSOR, COM1, 0x0A);
+			} else {
+				WRITE_REG_OR_RETURN(BANK_SENSOR, COM1, 0x0F);
+			}
+				
+		WRITE_REG_OR_RETURN(BANK_SENSOR, COM1, 0x0F);	
+		//SET_REG_BITS_OR_RETURN(BANK_SENSOR, COM1, 0, 0xC0, 0x00);
+	
+	}
+	return ret;
 }
 
 static int set_contrast(sensor_t *sensor, int level)
@@ -558,6 +605,8 @@ int ov2640_init(sensor_t *sensor)
 
     sensor->set_raw_gma = set_raw_gma_dsp;
     sensor->set_lenc = set_lenc_dsp;
+	
+	sensor->set_nightmode = set_nightmode;
 
     //not supported
     sensor->set_sharpness = set_sharpness;
