@@ -1,5 +1,9 @@
 # ESP32 Camera Driver
 
+Modified to add nightmode support (slow frame rate)
+
+
+
 ## General Information
 
 This repository hosts ESP32 compatible driver for OV2640 and OV3660 image sensors. Additionally it provides a few tools, which allow converting the captured frame data to the more common BMP and JPEG formats.
